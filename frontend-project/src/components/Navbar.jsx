@@ -10,7 +10,7 @@ const Navbar = () => {
       await axios.post('/api/auth/logout');
       toast.success('Logged out successfully');
       navigate('/login');
-    } catch (error) {
+    } catch  {
       toast.error('Error logging out');
     }
   };

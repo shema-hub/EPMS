@@ -30,7 +30,7 @@ const Employees = () => {
                 withCredentials: true
             });
             setEmployees(response.data);
-        } catch (error) {
+        } catch  {
             toast.error('Failed to fetch employees');
         }
     };
@@ -41,7 +41,7 @@ const Employees = () => {
                 withCredentials: true
             });
             setDepartments(response.data);
-        } catch (error) {
+        } catch  {
             toast.error('Error fetching departments');
         }
     };
@@ -112,7 +112,7 @@ const Employees = () => {
                 });
                 toast.success('Employee deleted successfully');
                 fetchEmployees();
-            } catch (error) {
+            } catch  {
                 toast.error('Failed to delete employee');
             }
         }
@@ -236,7 +236,7 @@ const Employees = () => {
                 <div className="mt-4">
                     <button
                         type="submit"
-                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                        className="bg-indigo-700 hover:bg-indigo-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
                     >
                         {editingId ? 'Update Employee' : 'Add Employee'}
                     </button>

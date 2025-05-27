@@ -25,7 +25,7 @@ const Salaries = () => {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setSalaries(response.data);
-    } catch (error) {
+    } catch  {
       toast.error('Failed to fetch salaries');
     }
   };
@@ -36,7 +36,7 @@ const Salaries = () => {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setEmployees(response.data);
-    } catch (error) {
+    } catch  {
       toast.error('Failed to fetch employees');
     }
   };
@@ -102,7 +102,7 @@ const Salaries = () => {
         });
         toast.success('Salary record deleted successfully');
         fetchSalaries();
-      } catch (error) {
+      } catch  {
         toast.error('Failed to delete salary record');
       }
     }
@@ -178,7 +178,7 @@ const Salaries = () => {
         <div className="mt-4">
           <button
             type="submit"
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            className="bg-indigo-600 hover:bg-indigo-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
           >
             {editingId ? 'Update Salary Record' : 'Add Salary Record'}
           </button>

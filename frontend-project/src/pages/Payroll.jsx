@@ -63,7 +63,7 @@ const Payroll = () => {
           />
           <button
             onClick={handleProcessPayroll}
-            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            className="bg-indigo-600 hover:bg-indigo-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
           >
             Process Payroll
           </button>
@@ -177,7 +177,7 @@ const Payroll = () => {
               </button>
               <button
                 onClick={handlePrint}
-                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                className="bg-indigo-700 hover:bg-indigo-800 text-white font-bold py-2 px-4 rounded"
               >
                 Print
               </button>

@@ -21,7 +21,7 @@ const Departments = () => {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setDepartments(response.data);
-    } catch (error) {
+    } catch  {
       toast.error('Failed to fetch departments');
     }
   };
@@ -72,7 +72,7 @@ const Departments = () => {
         });
         toast.success('Department deleted successfully');
         fetchDepartments();
-      } catch (error) {
+      } catch  {
         toast.error('Failed to delete department');
       }
     }
@@ -121,7 +121,7 @@ const Departments = () => {
         <div className="mt-4">
           <button
             type="submit"
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            className="bg-indigo-600 hover:bg-indigo-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
           >
             {editingId ? 'Update Department' : 'Add Department'}
           </button>
