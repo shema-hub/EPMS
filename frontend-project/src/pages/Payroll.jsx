@@ -11,6 +11,7 @@ const Payroll = () => {
     recentPayments: []
   });
   const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().slice(0, 7));
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     fetchPayrollData();
@@ -19,10 +20,10 @@ const Payroll = () => {
   const fetchPayrollData = async () => {
     try {
       const response = await axios.get(`http://localhost:5000/api/payroll/summary?month=${selectedMonth}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        withCredentials: true
       });
       setPayrollData(response.data);
-    } catch (error) {
+    } catch {
       toast.error('Failed to fetch payroll data');
     }
   };
@@ -35,13 +36,18 @@ const Payroll = () => {
     try {
       await axios.post('http://localhost:5000/api/payroll/process', 
         { month: selectedMonth },
-        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+        { withCredentials: true }
       );
       toast.success('Payroll processed successfully');
       fetchPayrollData();
-    } catch (error) {
+      setShowModal(true);
+    } catch {
       toast.error('Failed to process payroll');
     }
+  };
+
+  const handlePrint = () => {
+    window.print();
   };
 
   return (
@@ -117,8 +123,70 @@ const Payroll = () => {
           </tbody>
         </table>
       </div>
+
+      {showModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-3/4 max-w-4xl">
+            <h2 className="text-xl font-bold mb-4">Payroll for {selectedMonth}</h2>
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <h3 className="font-semibold">Total Employees:</h3>
+                <p>{payrollData.totalEmployees}</p>
+              </div>
+              <div>
+                <h3 className="font-semibold">Total Salary:</h3>
+                <p>${payrollData.totalSalary}</p>
+              </div>
+              <div>
+                <h3 className="font-semibold">Pending Payments:</h3>
+                <p>{payrollData.pendingPayments}</p>
+              </div>
+              <div>
+                <h3 className="font-semibold">Paid Payments:</h3>
+                <p>{payrollData.paidPayments}</p>
+              </div>
+            </div>
+            <div className="overflow-auto max-h-96">
+              <table className="min-w-full border border-gray-300">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="border px-4 py-2">Employee</th>
+                    <th className="border px-4 py-2">Amount</th>
+                    <th className="border px-4 py-2">Payment Date</th>
+                    <th className="border px-4 py-2">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {payrollData.recentPayments.map((payment) => (
+                    <tr key={payment._id}>
+                      <td className="border px-4 py-2">{payment.employeeName}</td>
+                      <td className="border px-4 py-2">${payment.amount}</td>
+                      <td className="border px-4 py-2">{new Date(payment.paymentDate).toLocaleDateString()}</td>
+                      <td className="border px-4 py-2">{payment.status}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="mt-4 flex justify-end space-x-4">
+              <button
+                onClick={() => setShowModal(false)}
+                className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
+              >
+                Close
+              </button>
+              <button
+                onClick={handlePrint}
+                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+              >
+                Print
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-export default Payroll; 
+export default Payroll;

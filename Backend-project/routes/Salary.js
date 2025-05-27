@@ -12,6 +12,19 @@ const isAuthenticated = (req, res, next) => {
     }
 };
 
+// Helper to parse month string "YYYY-MM" to { monthName, year }
+function parseMonthYear(monthStr) {
+    const [yearStr, monthNumStr] = monthStr.split('-');
+    const year = parseInt(yearStr, 10);
+    const monthNum = parseInt(monthNumStr, 10);
+    const months = [
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
+    ];
+    const monthName = months[monthNum - 1];
+    return { monthName, year };
+}
+
 // Get all salaries
 router.get('/', isAuthenticated, async (req, res) => {
     try {
@@ -38,7 +51,10 @@ router.get('/:id', isAuthenticated, async (req, res) => {
 // Create salary
 router.post('/', isAuthenticated, async (req, res) => {
     try {
-        const { grossSalary, totalDeduction, netSalary, month, employee } = req.body;
+        let { grossSalary, totalDeduction, netSalary, month, employee } = req.body;
+
+        // Parse month string to month name and year
+        const { monthName, year } = parseMonthYear(month);
 
         // Check if employee exists
         const employeeExists = await Employee.findById(employee);
@@ -46,17 +62,18 @@ router.post('/', isAuthenticated, async (req, res) => {
             return res.status(404).json({ message: 'Employee not found' });
         }
 
-        // Check if salary record already exists for this employee and month
-        const existingSalary = await Salary.findOne({ employee, month });
+        // Check if salary record already exists for this employee and month/year
+        const existingSalary = await Salary.findOne({ employee, month: monthName, year });
         if (existingSalary) {
-            return res.status(400).json({ message: 'Salary record already exists for this employee and month' });
+            return res.status(400).json({ message: 'Salary record already exists for this employee and month/year' });
         }
 
         const salary = new Salary({
             grossSalary,
             totalDeduction,
             netSalary,
-            month,
+            month: monthName,
+            year,
             employee
         });
 
@@ -76,13 +93,21 @@ router.put('/:id', isAuthenticated, async (req, res) => {
             return res.status(404).json({ message: 'Salary record not found' });
         }
 
-        const updatedSalary = await Salary.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            { new: true, runValidators: true }
-        ).populate('employee');
-        
-        res.json(updatedSalary);
+        let { grossSalary, totalDeduction, netSalary, month, employee } = req.body;
+
+        // Parse month string to month name and year
+        const { monthName, year } = parseMonthYear(month);
+
+        salary.grossSalary = grossSalary;
+        salary.totalDeduction = totalDeduction;
+        salary.netSalary = netSalary;
+        salary.month = monthName;
+        salary.year = year;
+        salary.employee = employee;
+
+        await salary.save();
+        const populatedSalary = await Salary.findById(salary._id).populate('employee');
+        res.json(populatedSalary);
     } catch (error) {
         res.status(500).json({ message: 'Error updating salary record', error: error.message });
     }
@@ -113,4 +138,4 @@ router.get('/employee/:employeeId', isAuthenticated, async (req, res) => {
     }
 });
 
-module.exports = router; 
+module.exports = router;

@@ -27,7 +27,7 @@ const Employees = () => {
     const fetchEmployees = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/employees', {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                withCredentials: true
             });
             setEmployees(response.data);
         } catch (error) {
@@ -38,7 +38,7 @@ const Employees = () => {
     const fetchDepartments = async () => {
         try {
             const response = await axios.get('http://localhost:5000/api/departments', {
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                withCredentials: true
             });
             setDepartments(response.data);
         } catch (error) {
@@ -62,12 +62,12 @@ const Employees = () => {
         try {
             if (editingId) {
                 await axios.put(`http://localhost:5000/api/employees/${editingId}`, formData, {
-                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                    withCredentials: true
                 });
                 toast.success('Employee updated successfully');
             } else {
                 await axios.post('http://localhost:5000/api/employees', formData, {
-                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                    withCredentials: true
                 });
                 toast.success('Employee added successfully');
             }
@@ -108,7 +108,7 @@ const Employees = () => {
         if (window.confirm('Are you sure you want to delete this employee?')) {
             try {
                 await axios.delete(`http://localhost:5000/api/employees/${id}`, {
-                    headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+                    withCredentials: true
                 });
                 toast.success('Employee deleted successfully');
                 fetchEmployees();
@@ -291,4 +291,4 @@ const Employees = () => {
     );
 };
 
-export default Employees; 
+export default Employees;

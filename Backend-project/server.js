@@ -5,7 +5,9 @@ const session = require('express-session');
 const authRoutes = require('./routes/auth');
 const employeeRoutes = require('./routes/employee');
 const departmentRoutes = require('./routes/department');
+// Add payrollRoutes import
 const salaryRoutes = require('./routes/salary');
+const payrollRoutes = require('./routes/payroll');
 
 const app = express();
 
@@ -30,6 +32,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/employees', employeeRoutes);
 app.use('/api/departments', departmentRoutes);
 app.use('/api/salaries', salaryRoutes);
+app.use('/api/payroll', payrollRoutes);
 
 // MongoDB connection
 mongoose.connect('mongodb://localhost:27017/EPMS', {
@@ -48,4 +51,4 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
-}); 
+});
