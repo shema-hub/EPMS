@@ -8,6 +8,7 @@ const departmentRoutes = require('./routes/department');
 // Add payrollRoutes import
 const salaryRoutes = require('./routes/salary');
 const payrollRoutes = require('./routes/payroll');
+// require('dotenv').config();
 
 const app = express();
 

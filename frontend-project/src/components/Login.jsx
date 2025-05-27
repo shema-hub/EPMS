@@ -96,9 +96,12 @@ const Login = () => {
             </button>
           </div>
         </form>
-        <div className="text-center">
-          <Link to="/signup" className="text-indigo-600 hover:text-indigo-500">
+        <div className="text-center space-y-2">
+          <Link to="/signup" className="text-indigo-600 hover:text-indigo-500 block">
             Don't have an account? Sign up
+          </Link>
+          <Link to="/forgot-password" className="text-indigo-600 hover:text-indigo-500 block">
+            Forgot Password?
           </Link>
         </div>
       </div>
