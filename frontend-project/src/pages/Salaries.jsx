@@ -6,11 +6,11 @@ const Salaries = () => {
   const [salaries, setSalaries] = useState([]);
   const [employees, setEmployees] = useState([]);
   const [formData, setFormData] = useState({
-    employeeId: '',
-    amount: '',
-    paymentDate: '',
-    paymentMethod: 'Bank Transfer',
-    status: 'Pending'
+    employee: '',
+    grossSalary: '',
+    totalDeduction: '',
+    netSalary: '',
+    month: ''
   });
   const [editingId, setEditingId] = useState(null);
 
@@ -42,9 +42,16 @@ const Salaries = () => {
   };
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
+    const { name, value } = e.target;
+    setFormData(prev => {
+      const newData = { ...prev, [name]: value };
+      // Calculate net salary if gross salary or total deduction changes
+      if (name === 'grossSalary' || name === 'totalDeduction') {
+        const gross = name === 'grossSalary' ? value : prev.grossSalary;
+        const deduction = name === 'totalDeduction' ? value : prev.totalDeduction;
+        newData.netSalary = gross - deduction;
+      }
+      return newData;
     });
   };
 
@@ -63,11 +70,11 @@ const Salaries = () => {
         toast.success('Salary record added successfully');
       }
       setFormData({
-        employeeId: '',
-        amount: '',
-        paymentDate: '',
-        paymentMethod: 'Bank Transfer',
-        status: 'Pending'
+        employee: '',
+        grossSalary: '',
+        totalDeduction: '',
+        netSalary: '',
+        month: ''
       });
       setEditingId(null);
       fetchSalaries();
@@ -78,21 +85,26 @@ const Salaries = () => {
 
   const handleEdit = (salary) => {
     setFormData({
-      ...salary,
-      paymentDate: new Date(salary.paymentDate).toISOString().split('T')[0]
+      employee: salary.employee._id,
+      grossSalary: salary.grossSalary,
+      totalDeduction: salary.totalDeduction,
+      netSalary: salary.netSalary,
+      month: salary.month
     });
     setEditingId(salary._id);
   };
 
   const handleDelete = async (id) => {
-    try {
-      await axios.delete(`http://localhost:5000/api/salaries/${id}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
-      toast.success('Salary record deleted successfully');
-      fetchSalaries();
-    } catch (error) {
-      toast.error('Failed to delete salary record');
+    if (window.confirm('Are you sure you want to delete this salary record?')) {
+      try {
+        await axios.delete(`http://localhost:5000/api/salaries/${id}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        });
+        toast.success('Salary record deleted successfully');
+        fetchSalaries();
+      } catch (error) {
+        toast.error('Failed to delete salary record');
+      }
     }
   };
 
@@ -105,8 +117,8 @@ const Salaries = () => {
           <div>
             <label className="block text-gray-700 text-sm font-bold mb-2">Employee</label>
             <select
-              name="employeeId"
-              value={formData.employeeId}
+              name="employee"
+              value={formData.employee}
               onChange={handleChange}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               required
@@ -114,60 +126,53 @@ const Salaries = () => {
               <option value="">Select Employee</option>
               {employees.map((employee) => (
                 <option key={employee._id} value={employee._id}>
-                  {employee.name}
+                  {`${employee.firstName} ${employee.lastName}`}
                 </option>
               ))}
             </select>
           </div>
           <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">Amount</label>
+            <label className="block text-gray-700 text-sm font-bold mb-2">Month</label>
+            <input
+              type="month"
+              name="month"
+              value={formData.month}
+              onChange={handleChange}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-gray-700 text-sm font-bold mb-2">Gross Salary</label>
             <input
               type="number"
-              name="amount"
-              value={formData.amount}
+              name="grossSalary"
+              value={formData.grossSalary}
               onChange={handleChange}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               required
             />
           </div>
           <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">Payment Date</label>
+            <label className="block text-gray-700 text-sm font-bold mb-2">Total Deduction</label>
             <input
-              type="date"
-              name="paymentDate"
-              value={formData.paymentDate}
+              type="number"
+              name="totalDeduction"
+              value={formData.totalDeduction}
               onChange={handleChange}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               required
             />
           </div>
           <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">Payment Method</label>
-            <select
-              name="paymentMethod"
-              value={formData.paymentMethod}
-              onChange={handleChange}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              required
-            >
-              <option value="Bank Transfer">Bank Transfer</option>
-              <option value="Cash">Cash</option>
-              <option value="Check">Check</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">Status</label>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleChange}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              required
-            >
-              <option value="Pending">Pending</option>
-              <option value="Paid">Paid</option>
-              <option value="Failed">Failed</option>
-            </select>
+            <label className="block text-gray-700 text-sm font-bold mb-2">Net Salary</label>
+            <input
+              type="number"
+              name="netSalary"
+              value={formData.netSalary}
+              readOnly
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-gray-100"
+            />
           </div>
         </div>
         <div className="mt-4">
@@ -185,10 +190,10 @@ const Salaries = () => {
           <thead>
             <tr className="bg-gray-100">
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Date</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Payment Method</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Month</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gross Salary</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Deduction</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Net Salary</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
@@ -196,21 +201,14 @@ const Salaries = () => {
             {salaries.map((salary) => (
               <tr key={salary._id}>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  {employees.find(emp => emp._id === salary.employeeId)?.name}
+                  {`${salary.employee.firstName} ${salary.employee.lastName}`}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">${salary.amount}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  {new Date(salary.paymentDate).toLocaleDateString()}
+                  {new Date(salary.month).toLocaleDateString('en-US', { year: 'numeric', month: 'long' })}
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap">{salary.paymentMethod}</td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                    ${salary.status === 'Paid' ? 'bg-green-100 text-green-800' : 
-                      salary.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 
-                      'bg-red-100 text-red-800'}`}>
-                    {salary.status}
-                  </span>
-                </td>
+                <td className="px-6 py-4 whitespace-nowrap">${salary.grossSalary}</td>
+                <td className="px-6 py-4 whitespace-nowrap">${salary.totalDeduction}</td>
+                <td className="px-6 py-4 whitespace-nowrap">${salary.netSalary}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <button
                     onClick={() => handleEdit(salary)}

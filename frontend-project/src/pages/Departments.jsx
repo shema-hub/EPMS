@@ -5,9 +5,9 @@ import { toast } from 'react-toastify';
 const Departments = () => {
   const [departments, setDepartments] = useState([]);
   const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    manager: ''
+    departmentCode: '',
+    departmentName: '',
+    grossSalary: ''
   });
   const [editingId, setEditingId] = useState(null);
 
@@ -47,7 +47,7 @@ const Departments = () => {
         });
         toast.success('Department added successfully');
       }
-      setFormData({ name: '', description: '', manager: '' });
+      setFormData({ departmentCode: '', departmentName: '', grossSalary: '' });
       setEditingId(null);
       fetchDepartments();
     } catch (error) {
@@ -56,19 +56,25 @@ const Departments = () => {
   };
 
   const handleEdit = (department) => {
-    setFormData(department);
+    setFormData({
+      departmentCode: department.departmentCode,
+      departmentName: department.departmentName,
+      grossSalary: department.grossSalary
+    });
     setEditingId(department._id);
   };
 
   const handleDelete = async (id) => {
-    try {
-      await axios.delete(`http://localhost:5000/api/departments/${id}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
-      });
-      toast.success('Department deleted successfully');
-      fetchDepartments();
-    } catch (error) {
-      toast.error('Failed to delete department');
+    if (window.confirm('Are you sure you want to delete this department?')) {
+      try {
+        await axios.delete(`http://localhost:5000/api/departments/${id}`, {
+          headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+        });
+        toast.success('Department deleted successfully');
+        fetchDepartments();
+      } catch (error) {
+        toast.error('Failed to delete department');
+      }
     }
   };
 
@@ -79,35 +85,35 @@ const Departments = () => {
       <form onSubmit={handleSubmit} className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">Department Name</label>
+            <label className="block text-gray-700 text-sm font-bold mb-2">Department Code</label>
             <input
               type="text"
-              name="name"
-              value={formData.name}
+              name="departmentCode"
+              value={formData.departmentCode}
               onChange={handleChange}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               required
             />
           </div>
           <div>
-            <label className="block text-gray-700 text-sm font-bold mb-2">Manager</label>
+            <label className="block text-gray-700 text-sm font-bold mb-2">Department Name</label>
             <input
               type="text"
-              name="manager"
-              value={formData.manager}
+              name="departmentName"
+              value={formData.departmentName}
               onChange={handleChange}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               required
             />
           </div>
-          <div className="md:col-span-2">
-            <label className="block text-gray-700 text-sm font-bold mb-2">Description</label>
-            <textarea
-              name="description"
-              value={formData.description}
+          <div>
+            <label className="block text-gray-700 text-sm font-bold mb-2">Gross Salary</label>
+            <input
+              type="number"
+              name="grossSalary"
+              value={formData.grossSalary}
               onChange={handleChange}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              rows="3"
               required
             />
           </div>
@@ -126,18 +132,18 @@ const Departments = () => {
         <table className="min-w-full">
           <thead>
             <tr className="bg-gray-100">
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Manager</th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department Code</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Department Name</th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gross Salary</th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {departments.map((department) => (
               <tr key={department._id}>
-                <td className="px-6 py-4 whitespace-nowrap">{department.name}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{department.manager}</td>
-                <td className="px-6 py-4">{department.description}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{department.departmentCode}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{department.departmentName}</td>
+                <td className="px-6 py-4 whitespace-nowrap">${department.grossSalary}</td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <button
                     onClick={() => handleEdit(department)}
