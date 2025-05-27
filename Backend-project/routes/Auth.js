@@ -19,14 +19,14 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ message: 'Maximum user limit reached (7 users)' });
         }
 
-        const { username, password } = req.body;
-        const existingUser = await User.findOne({ username });
+        const { email, password } = req.body;
+        const existingUser = await User.findOne({ email });
         
         if (existingUser) {
-            return res.status(400).json({ message: 'Username already exists' });
+            return res.status(400).json({ message: 'Email already exists' });
         }
 
-        const user = new User({ username, password });
+        const user = new User({ email, password });
         await user.save();
         
         res.status(201).json({ message: 'User registered successfully' });
@@ -35,24 +35,27 @@ router.post('/register', async (req, res) => {
     }
 });
 
-// Login route
+/* Login route with added logging */
 router.post('/login', async (req, res) => {
     try {
-        const { username, password } = req.body;
-        const user = await User.findOne({ username });
+        const { email, password } = req.body;
+        console.log('Login attempt:', email);
+        const user = await User.findOne({ email });
+        console.log('User found:', !!user);
 
         if (!user) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
         const isMatch = await user.comparePassword(password);
+        console.log('Password match:', isMatch);
         if (!isMatch) {
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
         req.session.user = {
             id: user._id,
-            username: user.username,
+            email: user.email,
             role: user.role
         };
 

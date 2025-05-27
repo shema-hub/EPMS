@@ -8,6 +8,7 @@ const Login = () => {
     email: '',
     password: ''
   });
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -19,12 +20,25 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    
     try {
-      await axios.post('/api/auth/login', formData);
-      toast.success('Login successful!');
-      navigate('/');
+      const response = await axios.post('http://localhost:5000/api/auth/login', formData, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.status === 200) {
+        toast.success('Login successful!');
+        navigate('/Departments'); // Navigate to root path where navbar is located
+      }
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Login failed');
+      const errorMessage = error.response?.data?.message || 'Login failed';
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -49,6 +63,7 @@ const Login = () => {
                 placeholder="Email address"
                 value={formData.email}
                 onChange={handleChange}
+                disabled={isLoading}
               />
             </div>
             <div>
@@ -62,6 +77,7 @@ const Login = () => {
                 placeholder="Password"
                 value={formData.password}
                 onChange={handleChange}
+                disabled={isLoading}
               />
             </div>
           </div>
@@ -69,9 +85,10 @@ const Login = () => {
           <div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+              disabled={isLoading}
             >
-              Sign in
+              {isLoading ? 'Signing in...' : 'Sign in'}
             </button>
           </div>
         </form>

@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
 const userSchema = new mongoose.Schema({
-    username: {
+    email: {
         type: String,
         required: true,
         unique: true
@@ -25,15 +25,16 @@ userSchema.pre('save', async function(next) {
     next();
 });
 
-// Method to check password
+// Method to compare password
 userSchema.methods.comparePassword = async function(candidatePassword) {
-    return await bcrypt.compare(candidatePassword, this.password);
+    return bcrypt.compare(candidatePassword, this.password);
 };
 
 // Static method to check user count
 userSchema.statics.checkUserCount = async function() {
     const count = await this.countDocuments();
-    return count < 7;
+    return count < 7; // Maximum 7 users allowed
 };
 
-module.exports = mongoose.model('User', userSchema); 
+const User = mongoose.model('User', userSchema);
+module.exports = User; 

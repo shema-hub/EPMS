@@ -5,11 +5,11 @@ import { toast } from 'react-toastify';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
-    name: '',
     email: '',
     password: '',
     confirmPassword: ''
   });
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -25,16 +25,28 @@ const Signup = () => {
       toast.error('Passwords do not match');
       return;
     }
+
+    setIsLoading(true);
     try {
-      await axios.post('/api/auth/register', {
-        name: formData.name,
+      const response = await axios.post('http://localhost:5000/api/auth/register', {
         email: formData.email,
         password: formData.password
+      }, {
+        withCredentials: true,
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
-      toast.success('Registration successful! Please login.');
-      navigate('/login');
+
+      if (response.status === 201) {
+        toast.success('Registration successful! Please login.');
+        navigate('/login');
+      }
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Registration failed');
+      const errorMessage = error.response?.data?.message || 'Registration failed';
+      toast.error(errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -49,29 +61,17 @@ const Signup = () => {
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm -space-y-px">
             <div>
-              <label htmlFor="name" className="sr-only">Full Name</label>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
-                placeholder="Full Name"
-                value={formData.name}
-                onChange={handleChange}
-              />
-            </div>
-            <div>
               <label htmlFor="email" className="sr-only">Email address</label>
               <input
                 id="email"
                 name="email"
                 type="email"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                 placeholder="Email address"
                 value={formData.email}
                 onChange={handleChange}
+                disabled={isLoading}
               />
             </div>
             <div>
@@ -85,6 +85,7 @@ const Signup = () => {
                 placeholder="Password"
                 value={formData.password}
                 onChange={handleChange}
+                disabled={isLoading}
               />
             </div>
             <div>
@@ -98,6 +99,7 @@ const Signup = () => {
                 placeholder="Confirm Password"
                 value={formData.confirmPassword}
                 onChange={handleChange}
+                disabled={isLoading}
               />
             </div>
           </div>
@@ -105,9 +107,10 @@ const Signup = () => {
           <div>
             <button
               type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
+              disabled={isLoading}
             >
-              Sign up
+              {isLoading ? 'Signing up...' : 'Sign up'}
             </button>
           </div>
         </form>
