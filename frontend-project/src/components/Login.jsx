@@ -31,8 +31,9 @@ const Login = () => {
       });
 
       if (response.status === 200) {
+        localStorage.setItem('token', 'true'); // Set token flag for PrivateRoute
         toast.success('Login successful!');
-        navigate('/Departments'); // Navigate to root path where navbar is located
+        navigate('/'); // Redirect to the Dashboard page after successful login
       }
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Login failed';
@@ -102,4 +103,4 @@ const Login = () => {
   );
 };
 
-export default Login; 
+export default Login;

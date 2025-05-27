@@ -8,6 +8,7 @@ import Employees from './pages/Employees';
 import Departments from './pages/Departments';
 import Salaries from './pages/Salaries';
 import Payroll from './pages/Payroll';
+import Dashboard from './pages/Dashboard';
 
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem('token');
@@ -26,12 +27,7 @@ const App = () => {
             path="/"
             element={
               <PrivateRoute>
-                <Layout>
-                  <div className="container mx-auto px-4 py-8">
-                    <h1 className="text-3xl font-bold text-gray-900">Welcome to EPMS</h1>
-                    <p className="mt-2 text-gray-600">Employee Payroll Management System</p>
-                  </div>
-                </Layout>
+                <Dashboard />
               </PrivateRoute>
             }
           />
